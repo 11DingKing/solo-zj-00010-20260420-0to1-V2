@@ -1,0 +1,30 @@
+{
+  "name": "ecommerce-backend",
+  "version": "1.0.0",
+  "description": "电商后台商品管理系统 - 后端",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "keywords": [
+    "koa",
+    "ecommerce",
+    "backend"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "koa": "^2.14.2",
+    "koa-body": "^6.0.1",
+    "koa-router": "^12.0.0",
+    "koa-cors": "^0.0.16",
+    "mysql2": "^3.6.0",
+    "redis": "^4.6.7",
+    "joi": "^17.9.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
