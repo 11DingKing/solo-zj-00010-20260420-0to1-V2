@@ -89,7 +89,7 @@
         <el-table-column prop="brand_name" label="品牌" width="100" />
         <el-table-column prop="min_price" label="最低价" width="100">
           <template #default="{ row }">
-            <span class="price">¥{{ row.min_price || '-' }}</span>
+            <span class="price">¥{{ row.min_price || "-" }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="total_stock" label="总库存" width="100">
@@ -102,7 +102,7 @@
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'danger'">
-              {{ row.status === 1 ? '上架' : '下架' }}
+              {{ row.status === 1 ? "上架" : "下架" }}
             </el-tag>
           </template>
         </el-table-column>
@@ -133,25 +133,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { productApi, categoryApi } from '@/api'
-import type { Product, Category, Brand, Pagination } from '@/types'
+import { ref, reactive, onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { productApi, categoryApi } from "@/api";
+import type { Product, Category, Brand, Pagination } from "@/types";
 
-const router = useRouter()
+const router = useRouter();
 
-const loading = ref(false)
-const productList = ref<Product[]>([])
-const categoryOptions = ref<Category[]>([])
-const brands = ref<Brand[]>([])
+const loading = ref(false);
+const productList = ref<Product[]>([]);
+const categoryOptions = ref<Category[]>([]);
+const brands = ref<Brand[]>([]);
 
 const pagination = reactive<Pagination>({
   page: 1,
   page_size: 20,
   total: 0,
   total_pages: 0,
-})
+});
 
 const searchForm = reactive({
   page: 1,
@@ -159,49 +159,49 @@ const searchForm = reactive({
   category_id: undefined as number | undefined,
   brand_id: undefined as number | undefined,
   status: undefined as number | undefined,
-  keyword: '',
-})
+  keyword: "",
+});
 
 const loadBrands = async () => {
   try {
-    const res = await productApi.getBrands()
-    brands.value = res.data
+    const res = await productApi.getBrands();
+    brands.value = res.data;
   } catch (error: any) {
-    ElMessage.error(error.message || '加载品牌列表失败')
+    ElMessage.error(error.message || "加载品牌列表失败");
   }
-}
+};
 
 const loadCategories = async () => {
   try {
-    const res = await categoryApi.getTree()
-    categoryOptions.value = res.data
+    const res = await categoryApi.getTree();
+    categoryOptions.value = res.data;
   } catch (error: any) {
-    ElMessage.error(error.message || '加载分类列表失败')
+    ElMessage.error(error.message || "加载分类列表失败");
   }
-}
+};
 
 const loadProducts = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    const params = { ...searchForm }
+    const params = { ...searchForm };
     if (params.category_id) {
-      const categoryIds = params.category_id as number[]
-      params.category_id = categoryIds[categoryIds.length - 1]
+      const categoryIds = params.category_id as number[];
+      params.category_id = categoryIds[categoryIds.length - 1];
     }
-    const res = await productApi.getList(params)
-    productList.value = res.data.list
-    Object.assign(pagination, res.data.pagination)
+    const res = await productApi.getList(params);
+    productList.value = res.data.list;
+    Object.assign(pagination, res.data.pagination);
   } catch (error: any) {
-    ElMessage.error(error.message || '加载商品列表失败')
+    ElMessage.error(error.message || "加载商品列表失败");
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const handleSearch = () => {
-  searchForm.page = 1
-  loadProducts()
-}
+  searchForm.page = 1;
+  loadProducts();
+};
 
 const handleReset = () => {
   Object.assign(searchForm, {
@@ -210,56 +210,70 @@ const handleReset = () => {
     category_id: undefined,
     brand_id: undefined,
     status: undefined,
-    keyword: '',
-  })
-  loadProducts()
-}
+    keyword: "",
+  });
+  loadProducts();
+};
+
+watch(
+  () => [searchForm.category_id, searchForm.brand_id, searchForm.status],
+  () => {
+    searchForm.page = 1;
+    loadProducts();
+  },
+);
+
+watch(
+  () => searchForm.keyword,
+  (newVal, oldVal) => {
+    if (newVal === "" && oldVal !== "") {
+      searchForm.page = 1;
+      loadProducts();
+    }
+  },
+);
 
 const handleSizeChange = (size: number) => {
-  searchForm.page_size = size
-  loadProducts()
-}
+  searchForm.page_size = size;
+  loadProducts();
+};
 
 const handleCurrentChange = (page: number) => {
-  searchForm.page = page
-  loadProducts()
-}
+  searchForm.page = page;
+  loadProducts();
+};
 
 const handleCreate = () => {
-  router.push('/products/create')
-}
+  router.push("/products/create");
+};
 
 const handleEdit = (row: Product) => {
-  router.push(`/products/${row.id}/edit`)
-}
+  router.push(`/products/${row.id}/edit`);
+};
 
 const handleDelete = async (row: Product) => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除商品"${row.name}"吗？`,
-      '提示',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }
-    )
-    
-    await productApi.delete(row.id)
-    ElMessage.success('删除成功')
-    loadProducts()
+    await ElMessageBox.confirm(`确定要删除商品"${row.name}"吗？`, "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    });
+
+    await productApi.delete(row.id);
+    ElMessage.success("删除成功");
+    loadProducts();
   } catch (error: any) {
-    if (error !== 'cancel') {
-      ElMessage.error(error.message || '删除失败')
+    if (error !== "cancel") {
+      ElMessage.error(error.message || "删除失败");
     }
   }
-}
+};
 
 onMounted(() => {
-  loadCategories()
-  loadBrands()
-  loadProducts()
-})
+  loadCategories();
+  loadBrands();
+  loadProducts();
+});
 </script>
 
 <style scoped>
